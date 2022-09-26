@@ -8,26 +8,32 @@ import ua.cn.stu.http.sources.base.BaseRetrofitSource
 import ua.cn.stu.http.sources.base.RetrofitConfig
 import ua.cn.stu.http.sources.boxes.entities.UpdateBoxRequestEntity
 
-// todo #8: implement BoxesSource methods:
-//          - setIsActive() -> should call 'PUT '/boxes/{boxId}'
-//          - getBoxes() -> should call 'GET /boxes[?active=true|false]'
-//                          and return the list of BoxAndSettings entities
 class RetrofitBoxesSource(
     config: RetrofitConfig
 ) : BaseRetrofitSource(config), BoxesSource {
 
+    val boxesApi = retrofit.create(BoxesApi::class.java)
+
     override suspend fun setIsActive(
         boxId: Long,
         isActive: Boolean
-    ) {
-        TODO()
+    )  = wrapRetrofitExceptions{
+        val updateBoxRequestEntity = UpdateBoxRequestEntity(
+            isActive = isActive
+        )
+        boxesApi.setActive(boxId,updateBoxRequestEntity)
     }
 
     override suspend fun getBoxes(
         boxesFilter: BoxesFilter
     ): List<BoxAndSettings> = wrapRetrofitExceptions {
         delay(500)
-        TODO()
+        val isActive: Boolean? = if (boxesFilter == BoxesFilter.ONLY_ACTIVE)
+            true
+        else
+            null
+
+        boxesApi.getBoxes(isActive).map { it.toBoxAndSettings() }
     }
 
 }

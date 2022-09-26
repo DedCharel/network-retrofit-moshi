@@ -1,19 +1,37 @@
 package ua.cn.stu.http.sources
 
+import com.squareup.moshi.Moshi
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Retrofit
+import retrofit2.converter.moshi.MoshiConverterFactory
+import ua.cn.stu.http.app.Const
 import ua.cn.stu.http.app.Singletons
 import ua.cn.stu.http.app.model.SourcesProvider
 import ua.cn.stu.http.app.model.settings.AppSettings
+import ua.cn.stu.http.sources.base.RetrofitConfig
+import ua.cn.stu.http.sources.base.RetrofitSourcesProvider
 
 object SourceProviderHolder {
 
     val sourcesProvider: SourcesProvider by lazy<SourcesProvider> {
-        TODO("#10: Create Moshi instance, Retrofit instance, then create " +
-                "RetrofitConfig instance and use it for creating RetrofitSourcesProvider")
+        val moshi = Moshi.Builder().build()
+        val config = RetrofitConfig(
+            retrofit = createRetrofit(moshi),
+            moshi = moshi
+        )
+        RetrofitSourcesProvider(config)
     }
 
+
+    private fun createRetrofit(moshi: Moshi): Retrofit{
+        return Retrofit.Builder()
+            .baseUrl(Const.BASE_URL)
+            .client(createOkHttpClient())
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .build()
+    }
     /**
      * Create an instance of OkHttpClient with interceptors for authorization
      * and logging (see [createAuthorizationInterceptor] and [createLoggingInterceptor]).

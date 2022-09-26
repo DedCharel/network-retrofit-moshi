@@ -1,7 +1,15 @@
 package ua.cn.stu.http.sources.boxes
 
-// todo #6: add 2 methods for making requests related to boxes:
-//          - 'GET /boxes[?active=true|false]'
-//          - 'PUT /boxes/{boxId}'
-//          Hint: use entities located in 'ua.cn.stu.sources.boxes.entities' package
-interface BoxesApi
+import retrofit2.http.*
+import ua.cn.stu.http.sources.boxes.entities.GetBoxResponseEntity
+import ua.cn.stu.http.sources.boxes.entities.UpdateBoxRequestEntity
+
+
+interface BoxesApi {
+
+    @GET("boxes")
+    suspend fun getBoxes(@Query("active") isActive: Boolean?): List<GetBoxResponseEntity>
+
+    @PUT("boxes/{boxId}")
+    suspend fun setActive(@Path("boxId") boxId: Long, @Body body: UpdateBoxRequestEntity)
+}
